@@ -2,7 +2,7 @@
 Several monad transformer implementations. Here is the list:
 
 - [x] MaybeT
-- [ ] EitherT
+- [x] EitherT
 - [ ] ReaderT
 - [ ] WriterT
 - [ ] StateT
