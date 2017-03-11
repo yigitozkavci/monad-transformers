@@ -22,6 +22,6 @@ liftMaybe mayb =
     Just a -> return (Just a)
     Nothing -> return Nothing
 
-liftIO :: Monad m => m a -> MaybeT m a
-liftIO mio =
-  MaybeT $ mio >>= \x -> return $ Just x
+lift :: Monad m => m a -> MaybeT m a
+lift ma =
+  MaybeT $ ma >>= \x -> return $ Just x
