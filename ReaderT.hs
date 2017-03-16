@@ -1,10 +1,5 @@
 import Control.Applicative
 
-data Credentials = Credentials
-  { apiKey :: String
-  , secret :: String
-  } deriving (Show)
-
 newtype Reader a b = Reader
   { runReader :: a -> b }
 
