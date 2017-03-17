@@ -5,4 +5,4 @@ Several monad transformer implementations. Here is the list:
 - [X] EitherT
 - [X] ReaderT
 - [X] WriterT
-- [ ] StateT
+- [X] StateT

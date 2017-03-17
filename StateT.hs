@@ -22,22 +22,22 @@ instance Monad (State s) where
     let (a, s') = runState mx $ s in
     (runState $ f a) $ s'
 
-newtype StateIO s a = StateIO
-  { runStateIO :: s -> IO (a, s) }
+newtype StateT s m a = StateT
+  { runStateT :: s -> m (a, s) }
 
-instance Functor (StateIO s) where
-  fmap f mx = StateIO $ \s -> do
-    (a, s') <- runStateIO mx $ s
+instance Monad m => Functor (StateT s m) where
+  fmap f mx = StateT $ \s -> do
+    (a, s') <- runStateT mx $ s
     return $ (f a, s')
 
-instance Applicative (StateIO s) where
-  pure x = StateIO $ \s -> return $ (x, s)
-  mf <*> mx = StateIO $ \s -> do
-    (a, s') <- runStateIO mx $ s
-    (f', s'') <- runStateIO mf $ s'
+instance Monad m => Applicative (StateT s m) where
+  pure x = StateT $ \s -> return $ (x, s)
+  mf <*> mx = StateT $ \s -> do
+    (a, s') <- runStateT mx $ s
+    (f', s'') <- runStateT mf $ s'
     return (f' a, s'')
 
-instance Monad (StateIO s) where
-  mx >>= f = StateIO $ \s -> do
-    (a, s') <- runStateIO mx $ s
-    (runStateIO $ f a) $ s'
+instance Monad m => Monad (StateT s m) where
+  mx >>= f = StateT $ \s -> do
+    (a, s') <- runStateT mx $ s
+    (runStateT $ f a) $ s'
