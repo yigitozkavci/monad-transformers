@@ -14,19 +14,19 @@ instance Monad (Reader a) where
   return x = Reader (const x)
   m >>= k = Reader $ \r -> runReader (k (runReader m r)) r
 
-newtype ReaderIO a b = ReaderIO
-  { runReaderIO :: a -> IO b }
+newtype ReaderT a m b = ReaderT
+  { runReaderT :: a -> m b }
 
-instance Functor (ReaderIO a) where
-  fmap f x = ReaderIO $ \a -> do
-    b <- runReaderIO x $ a
+instance Monad m => Functor (ReaderT a m) where
+  fmap f x = ReaderT $ \a -> do
+    b <- runReaderT x $ a
     return $ f b
 
-instance Applicative (ReaderIO a) where
-  pure x  = ReaderIO $ const $ return x
-  f <*> x = ReaderIO $ liftA2 (<*>) (runReaderIO f) (runReaderIO x)
+instance Monad m => Applicative (ReaderT a m) where
+  pure x  = ReaderT $ const $ return x
+  f <*> x = ReaderT $ liftA2 (<*>) (runReaderT f) (runReaderT x)
 
-instance Monad (ReaderIO a) where
-  ma >>= f = ReaderIO $ \a -> do
-    b <- runReaderIO ma $ a
-    (runReaderIO $ f b) $ a
+instance Monad m => Monad (ReaderT a m) where
+  ma >>= f = ReaderT $ \a -> do
+    b <- runReaderT ma $ a
+    (runReaderT $ f b) $ a
