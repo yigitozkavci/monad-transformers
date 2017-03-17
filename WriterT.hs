@@ -19,27 +19,27 @@ instance Monoid w => Monad (Writer w) where
     (val1, log1) = runWriter mx
     (val2, log2) = runWriter . f $ val1
 
-newtype WriterIO w a = WriterIO
-  { runWriterIO :: IO (Writer w a) }
+newtype WriterT w m a = WriterT
+  { runWriterT :: m (Writer w a) }
 
-instance Functor (WriterIO w) where
-  fmap f ma = WriterIO $ runWriterIO ma >>= \writer ->
+instance Monad m => Functor (WriterT w m) where
+  fmap f ma = WriterT $ runWriterT ma >>= \writer ->
     let (val, log) = runWriter writer in
       return . Writer $ (f val, log)
 
-instance Monoid w => Applicative (WriterIO w) where
-  pure x = WriterIO $ return $ (Writer (x, mempty))
-  f <*> ma = WriterIO $ do
-    writer <- runWriterIO ma
-    writer2 <- runWriterIO f
+instance (Monoid w, Monad m) => Applicative (WriterT w m) where
+  pure x = WriterT $ return $ (Writer (x, mempty))
+  f <*> ma = WriterT $ do
+    writer <- runWriterT ma
+    writer2 <- runWriterT f
     let (val, log) = runWriter writer
     let (func, log2) = runWriter writer2
     return $ Writer (func val, log <> log2)
 
-instance Monoid w => Monad (WriterIO w) where
-  ma >>= f = WriterIO $ do
-    writer <- runWriterIO ma
+instance (Monoid w, Monad m) => Monad (WriterT w m) where
+  ma >>= f = WriterT $ do
+    writer <- runWriterT ma
     let (val, log) = runWriter writer
-    writer2 <- runWriterIO $ f val
+    writer2 <- runWriterT $ f val
     let (val2, log2) = runWriter writer2
     return $ Writer (val2, log <> log2)
